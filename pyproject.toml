@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unlearun"
+version = "0.0.1"
+authors = [
+    {name = "Shashwat", email = "shashmywebl@example.com"},
+]
+description = "Machine unlearning for Large Language Models"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+keywords = ["machine learning", "unlearning", "transformers", "pytorch"]
+dependencies = [
+    "torch>=1.13.0",
+    "transformers>=4.30.0",
+    "datasets>=2.0.0",
+    "accelerate>=0.20.0",
+    "tqdm>=4.65.0",
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "omegaconf>=2.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "flake8>=6.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/shashuat/unlearun"
+"Bug Tracker" = "https://github.com/shashuat/unlearun/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["unlearun*"]
+exclude = ["tests*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
