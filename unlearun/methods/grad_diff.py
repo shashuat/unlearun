@@ -31,13 +31,15 @@ class GradDiff(BaseUnlearningMethod):
         retain_loss_type: str = "NLL",
         **kwargs
     ):
-        super().__init__(model, ref_model, **kwargs)
+        # Set attributes before calling super().__init__ since requires_ref_model depends on them
         self.gamma = gamma
         self.alpha = alpha
         self.retain_loss_type = retain_loss_type
         
         if self.retain_loss_type not in ["NLL", "KL"]:
             raise ValueError(f"Invalid retain_loss_type: {retain_loss_type}")
+        
+        super().__init__(model, ref_model, **kwargs)
     
     @property
     def requires_ref_model(self) -> bool:

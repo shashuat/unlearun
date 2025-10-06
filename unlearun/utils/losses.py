@@ -61,7 +61,8 @@ def compute_kl_divergence(
     kl_div = kl_div * loss_mask
     
     # Average over non-masked tokens
-    return kl_div.sum() / loss_mask.sum().clamp(min=1)
+    # Clamp to 0 to handle numerical precision issues (KL divergence should be non-negative)
+    return (kl_div.sum() / loss_mask.sum().clamp(min=1)).clamp(min=0.0)
 
 
 def compute_dpo_loss(
