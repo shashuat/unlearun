@@ -40,6 +40,18 @@ class DataCollatorForUnlearning:
         Returns:
             Collated batch with 'forget' and 'retain' keys
         """
+        # Handle empty features
+        if not features:
+            raise ValueError("Cannot collate empty batch")
+        
+        # Debug: check what we received
+        if not features[0]:
+            raise ValueError(
+                f"Received empty dictionary in features. "
+                f"Features length: {len(features)}, "
+                f"Features: {features}"
+            )
+        
         # Check if features contain forget/retain structure
         if "forget" in features[0]:
             # Handle forget/retain pairs
@@ -54,11 +66,36 @@ class DataCollatorForUnlearning:
             
             return batch
         else:
+            # Handle regular features - but first check if this makes sense
+            if "input_ids" not in features[0]:
+                # This might be a problem with how data is being fetched
+                raise ValueError(
+                    f"Features do not have 'forget' key nor 'input_ids' key. "
+                    f"Available keys in first feature: {list(features[0].keys())}. "
+                    f"This suggests the dataset is not returning data correctly."
+                )
             # Handle regular features
             return self._collate_features(features)
     
     def _collate_features(self, features: List[Dict[str, Any]]) -> Dict[str, torch.Tensor]:
         """Collate a list of feature dictionaries."""
+        # Validate that features have required keys
+        if not features:
+            raise ValueError("Cannot collate empty features list")
+        
+        # Check what keys are available in the first feature
+        first_feature = features[0]
+        required_keys = ["input_ids", "attention_mask", "labels"]
+        
+        for key in required_keys:
+            if key not in first_feature:
+                available_keys = list(first_feature.keys()) if isinstance(first_feature, dict) else f"Not a dict: {type(first_feature)}"
+                raise KeyError(
+                    f"Feature missing required key '{key}'. "
+                    f"Available keys: {available_keys}. "
+                    f"First feature type: {type(first_feature)}"
+                )
+        
         # Extract input_ids, attention_mask, and labels
         input_ids = [f["input_ids"] for f in features]
         attention_mask = [f["attention_mask"] for f in features]

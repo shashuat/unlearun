@@ -231,6 +231,7 @@ class Unlearning:
             push_to_hub=False,
             report_to=["tensorboard"],
             seed=self.seed,
+            remove_unused_columns=False,  # Keep forget/retain structure
             **kwargs
         )
         

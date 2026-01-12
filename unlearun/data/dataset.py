@@ -193,17 +193,32 @@ class ForgetRetainDataset(Dataset):
         """Get paired examples from forget and retain datasets."""
         item = {}
         
-        if self.anchor == "forget":
-            item["forget"] = self.forget_dataset[idx]
-            if self.retain_dataset:
-                # Randomly sample from retain dataset
-                retain_idx = torch.randint(0, len(self.retain_dataset), (1,)).item()
-                item["retain"] = self.retain_dataset[retain_idx]
-        else:
-            item["retain"] = self.retain_dataset[idx]
-            if self.forget_dataset:
-                # Randomly sample from forget dataset
-                forget_idx = torch.randint(0, len(self.forget_dataset), (1,)).item()
-                item["forget"] = self.forget_dataset[forget_idx]
+        try:
+            if self.anchor == "forget":
+                item["forget"] = self.forget_dataset[idx]
+                if self.retain_dataset and len(self.retain_dataset) > 0:
+                    # Randomly sample from retain dataset
+                    retain_idx = torch.randint(0, len(self.retain_dataset), (1,)).item()
+                    item["retain"] = self.retain_dataset[retain_idx]
+            else:
+                item["retain"] = self.retain_dataset[idx]
+                if self.forget_dataset and len(self.forget_dataset) > 0:
+                    # Randomly sample from forget dataset
+                    forget_idx = torch.randint(0, len(self.forget_dataset), (1,)).item()
+                    item["forget"] = self.forget_dataset[forget_idx]
+        except Exception as e:
+            raise RuntimeError(
+                f"Error getting item {idx} from ForgetRetainDataset. "
+                f"Anchor: {self.anchor}, "
+                f"Forget dataset length: {len(self.forget_dataset) if self.forget_dataset else 0}, "
+                f"Retain dataset length: {len(self.retain_dataset) if self.retain_dataset else 0}. "
+                f"Original error: {e}"
+            ) from e
+        
+        if not item:
+            raise ValueError(
+                f"ForgetRetainDataset returned empty item at index {idx}. "
+                f"This should not happen. Anchor: {self.anchor}"
+            )
         
         return item

@@ -184,19 +184,29 @@ class UnlearningTrainer(Trainer):
     def training_step(
         self, 
         model: nn.Module, 
-        inputs: Dict[str, torch.Tensor]
+        inputs: Dict[str, torch.Tensor],
+        num_items_in_batch: Optional[int] = None
     ) -> torch.Tensor:
         """
         Perform a training step.
         
         Adds hooks for the unlearning method.
+        
+        Args:
+            model: The model being trained
+            inputs: Input batch
+            num_items_in_batch: Number of items in the batch (for newer transformers versions)
         """
         # Call method's step begin hook
         if hasattr(self.state, 'global_step'):
             self.unlearning_method.on_step_begin(self.state.global_step)
         
-        # Perform training step
-        loss = super().training_step(model, inputs)
+        # Perform training step - pass num_items_in_batch if parent expects it
+        try:
+            loss = super().training_step(model, inputs, num_items_in_batch)
+        except TypeError:
+            # Fallback for older transformers versions that don't expect num_items_in_batch
+            loss = super().training_step(model, inputs)
         
         # Call method's step end hook
         if hasattr(self.state, 'global_step'):
